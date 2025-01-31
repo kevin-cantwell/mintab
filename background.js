@@ -2,6 +2,9 @@ chrome.tabs.onCreated.addListener((newTab) => {
     if (chrome.runtime.lastError || !newTab.pendingUrl) {
         return;
     }
+    if (newTab.pendingUrl.startsWith("chrome://")) {
+        return;
+    }
     chrome.tabs.query({}, (tabs) => {
         for (let tab of tabs) {
             if (tab.id !== newTab.id && tab.url === newTab.pendingUrl) {
