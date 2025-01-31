@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Avoid Tab Duplicates",
     "version": "1.0.0",
-    "description": "If a newly created tab has a URL that exactly matches an existing one you'll be redirected to the existing tab and the new tab will close. If you tend to open the same sites a lot, this helps avoid polluting your chrome tabs with tons of duplicates.",
+    "description": "Watches for newly created tabs and if the URL matches an open tab you will instead be redirected to it instead.",
     "permissions": ["tabs", "windows"],
     "background": {
         "service_worker": "background.js"
