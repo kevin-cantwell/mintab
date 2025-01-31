@@ -1,13 +1,13 @@
 {
     "manifest_version": 3,
-    "name": "Tab Deduplicator",
+    "name": "Avoid Tab Duplicates",
     "version": "1.0",
-    "description": "Closes duplicate tabs and switches to existing ones.",
+    "description": "If a new tab matches an existing one, it will be closed and you'll be redirected to the already open tab.",
     "permissions": ["tabs", "windows"],
     "background": {
         "service_worker": "background.js"
     },
     "action": {
-        "default_title": "Tab Deduplicator"
+        "default_title": "Avoid Tab Duplicates"
     }
 }
