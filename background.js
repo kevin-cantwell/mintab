@@ -2,19 +2,38 @@ chrome.tabs.onCreated.addListener((newTab) => {
     if (chrome.runtime.lastError || !newTab.pendingUrl) {
         return;
     }
-    if (newTab.pendingUrl.startsWith("chrome://")) {
+    const newUrl = new URL(newTab.pendingUrl, window.location.origin);
+    // don't interrupt chrome special tabs such as chrome://newtab
+    if (newUrl.protocol === 'chrome:') {
         return;
     }
     chrome.tabs.query({}, (tabs) => {
-        for (let tab of tabs) {
-            if (tab.id !== newTab.id && tab.url === newTab.pendingUrl) {
-                // Duplicate found: switch to the existing tab and close the new one
-                chrome.tabs.remove(newTab.id, () => {
-                    chrome.tabs.update(tab.id, { active: true });
-                    chrome.windows.update(tab.windowId, { focused: true });
-                });
-                return;
+        for (let existingTab of tabs) {
+            // Don't compare a tab against itself
+            if (existingTab.id === newTab.id) {
+                continue;
             }
+            const existingUrl = new URL(existingTab.url, window.location.origin);
+
+            // if the base urls don't match, move on
+            if (existingUrl.origin !== newUrl.origin ||
+                existingUrl.pathname !== newUrl.pathname ||
+                existingUrl.search !== newUrl.search) {
+                continue
+            }
+    
+            // Duplicate found: switch to the existing tab and close the new one
+            chrome.tabs.remove(newTab.id, () => {
+                // If the new tab's url has a fragment, alter the existing tab to match it. This will
+                // trigger a hashchange event.
+                if (newUrl.hash) {
+                    chrome.tabs.update(existingTab.id, { active: true, url: newUrl.toString() });   
+                // Otherwise, don't remove the existing tab's fragment value, just switch to it. 
+                } else {
+                    chrome.tabs.update(existingTab.id, { active: true });
+                }
+                chrome.windows.update(existingTab.windowId, { focused: true });
+            });
         }
     });
 });
